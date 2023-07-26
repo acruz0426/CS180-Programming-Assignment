@@ -25,7 +25,7 @@ def print_tile_data(tile_types, tile_values):
     print(tile_values)
 
 
-def DP(n, H, tile_types, tile_values):
+def DP(n, H, tile_types, tile_values, i, j, protection, multiplier):
     # TODO
     # Placeholder function - implement your logic here
     # Your code to check whether it is possible to reach the bottom-right
@@ -33,9 +33,37 @@ def DP(n, H, tile_types, tile_values):
     # You should use dynamic programming to solve the problem.
     # Return True if possible, False otherwise.
 
-    # By defualt we return False
+    # By default we return False
     # TODO you should change this
-    res = False
+    if i >= n:   # check if past row limit
+        return False
+    if j >= n:   # check if past column limit
+        return False
+    if (H <= 0) and not (i == n-1 and j == n-1):    # check if Hp is 0 and not reach final tile
+        return False
+    if i == n-1 and j == n-1 and H >= 0:             # if reaches bottom-right tile with Hp left 
+        return True
+    if tile_types[i][j] == 0:   # check if damage tile
+        if protection == True:  # Use protection if available
+            opt_1 = DP(n, H, tile_types, tile_values, i+1, j, False, multiplier)  # go down
+            opt_2 = DP(n, H, tile_types, tile_values, i, j+1, False, multiplier)  # go right
+        else:  # Deal damage
+            opt_1 = DP(n, H - tile_values[i][j], tile_types, tile_values, i+1, j, protection, multiplier)  # go down
+            opt_2 = DP(n, H - tile_values[i][j], tile_types, tile_values, i, j+1, protection, multiplier)  # go right
+    elif tile_types[i][j] == 1: # Check if healing tile
+        if multiplier == True:  # Use multiplier if possible
+            opt_1 = DP(n, H + 2*tile_values[i][j], tile_types, tile_values, i+1, j, protection, False)  # go down
+            opt_2 = DP(n, H + 2*tile_values[i][j], tile_types, tile_values, i, j+1, protection, False)  # go right
+        else:  # Heal Hp
+            opt_1 = DP(n, H + tile_values[i][j], tile_types, tile_values, i+1, j, protection, multiplier)  # go down
+            opt_2 = DP(n, H + tile_values[i][j], tile_types, tile_values, i, j+1, protection, multiplier)  # go right
+    elif tile_types[i][j] == 2:
+        opt_1 = DP(n, H, tile_types, tile_values, i+1, j, True, multiplier)  # go down
+        opt_2 = DP(n, H, tile_types, tile_values, i, j+1, True, multiplier)  # go right
+    elif tile_types[i][j] == 3:
+        opt_1 = DP(n, H, tile_types, tile_values, i+1, j, protection, True)  # go down
+        opt_2 = DP(n, H, tile_types, tile_values, i, j+1, protection, True)  # go right
+    res = opt_1 or opt_2
     return res
 
 
@@ -47,7 +75,7 @@ def write_output_file(output_file_name, result):
 def main(input_file_name):
     n, H, tile_types, tile_values = load_input_file(input_file_name)
     print_tile_data(tile_types, tile_values)
-    result = DP(n, H, tile_types, tile_values)
+    result = DP(n, H, tile_types, tile_values, 0, 0)
     print("Result: " + str(result))
     output_file_name = input_file_name.replace(".txt", "_out.txt")
     write_output_file(output_file_name, result)
