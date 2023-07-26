@@ -26,8 +26,6 @@ def print_tile_data(tile_types, tile_values):
 
 
 def DP(n, H, tile_types, tile_values, memo, i, j, protection, multiplier):
-    # TODO
-    # Placeholder function - implement your logic here
     # Your code to check whether it is possible to reach the bottom-right
     # corner without running out of HP should go here.
     # You should use dynamic programming to solve the problem.
@@ -37,7 +35,7 @@ def DP(n, H, tile_types, tile_values, memo, i, j, protection, multiplier):
         return False
     if j >= n:                                      # check if past column limit
         return False
-    if (H <= 0) and not (i == n-1 and j == n-1):    # check if Hp is 0 and not reach final tile
+    if (H < 0):    # check if Hp is 0 and not reach final tile
         return False
     if i == n-1 and j == n-1 and H >= 0:            # if reaches bottom-right tile with Hp left 
         return True
