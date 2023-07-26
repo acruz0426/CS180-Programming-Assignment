@@ -45,15 +45,23 @@ def DP(n, H, tile_types, tile_values, i, j, protection, multiplier):
         return True
     if tile_types[i][j] == 0:   # check if damage tile
         if protection == True:  # Use protection if available
-            opt_1 = DP(n, H, tile_types, tile_values, i+1, j, False, multiplier)  # go down
-            opt_2 = DP(n, H, tile_types, tile_values, i, j+1, False, multiplier)  # go right
+            opt_1 = DP(n, H, tile_types, tile_values, i+1, j, False, multiplier)  # go down, use protection
+            opt_2 = DP(n, H, tile_types, tile_values, i, j+1, False, multiplier)  # go right, use protection
+            opt_3 = DP(n, H - tile_values[i][j], tile_types, tile_values, i, j+1, protection, multiplier)  # go down, don't use protection
+            opt_4 = DP(n, H - tile_values[i][j], tile_types, tile_values, i, j+1, protection, multiplier)  # go right, don't use protection
+            res = opt_1 or opt_2 or opt_3 or opt_4
+            return res
         else:  # Deal damage
             opt_1 = DP(n, H - tile_values[i][j], tile_types, tile_values, i+1, j, protection, multiplier)  # go down
             opt_2 = DP(n, H - tile_values[i][j], tile_types, tile_values, i, j+1, protection, multiplier)  # go right
     elif tile_types[i][j] == 1: # Check if healing tile
         if multiplier == True:  # Use multiplier if possible
-            opt_1 = DP(n, H + 2*tile_values[i][j], tile_types, tile_values, i+1, j, protection, False)  # go down
-            opt_2 = DP(n, H + 2*tile_values[i][j], tile_types, tile_values, i, j+1, protection, False)  # go right
+            opt_1 = DP(n, H + 2*tile_values[i][j], tile_types, tile_values, i+1, j, protection, False)  # go down, use multiplier
+            opt_2 = DP(n, H + 2*tile_values[i][j], tile_types, tile_values, i, j+1, protection, False)  # go right, use multiplier
+            opt_3 = DP(n, H + tile_values[i][j], tile_types, tile_values, i+1, j, protection, multiplier)  # go down, don't use multiplier
+            opt_4 = DP(n, H + tile_values[i][j], tile_types, tile_values, i, j+1, protection, multiplier)  # go right, don't use multiplier
+            res = opt_1 or opt_2 or opt_3 or opt_4
+            return res
         else:  # Heal Hp
             opt_1 = DP(n, H + tile_values[i][j], tile_types, tile_values, i+1, j, protection, multiplier)  # go down
             opt_2 = DP(n, H + tile_values[i][j], tile_types, tile_values, i, j+1, protection, multiplier)  # go right
@@ -75,7 +83,7 @@ def write_output_file(output_file_name, result):
 def main(input_file_name):
     n, H, tile_types, tile_values = load_input_file(input_file_name)
     print_tile_data(tile_types, tile_values)
-    result = DP(n, H, tile_types, tile_values, 0, 0)
+    result = DP(n, H, tile_types, tile_values, 0, 0, False, False)
     print("Result: " + str(result))
     output_file_name = input_file_name.replace(".txt", "_out.txt")
     write_output_file(output_file_name, result)
